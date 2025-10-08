@@ -4,7 +4,8 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
-const Product = require('./models/Product');
+
+const productRoutes = require("./routes/product.Routes");
 
 // Inicializar la app
 const app = express();
@@ -25,13 +26,8 @@ app.get("/", (req, res) => {
     });
 });
 
-// Ruta de prueba para productos
-app.get("/api/test", (req, res) => {
-    res.json({ 
-        message: " Ruta de productos funcionando",
-        data: []
-    });
-});
+// rutas de productos
+app.use("/api/products", productRoutes);
 
 
 // Iniciar el servidor
