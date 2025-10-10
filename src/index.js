@@ -3,20 +3,40 @@ require("dotenv").config();
 
 const express = require("express");
 const cors = require("cors");
+const cookieParser = require("cookie-parser");
 const connectDB = require("./config/db");
 
+// Importar rutas
+const userRoutes = require("./routes/users.Routes");
 const productRoutes = require("./routes/product.Routes");
 
-// Inicializar la app
-const app = express();
 const PORT = process.env.PORT || 3005;
+
+const app = express();
 
 // Conectar a la base de datos
 connectDB();
 
-// Middleware
-app.use(cors());
+// Configuración CORS como tu profesor
+const allowedOrigins = [
+    'http://localhost:5173',
+];
+
+// Middlewares
+app.use(cors({
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("No permitido por CORS"));
+        }
+    },
+    credentials: true
+}));
+
 app.use(express.json());
+app.use(cookieParser());
 
 // Ruta de prueba
 app.get("/", (req, res) => {
@@ -26,9 +46,9 @@ app.get("/", (req, res) => {
     });
 });
 
-// rutas de productos
+// Rutas
+app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
-
 
 // Iniciar el servidor
 app.listen(PORT, () => {
