@@ -1,4 +1,7 @@
 const Product = require("../models/Product");
+const stripeKey = process.env.STRIPE_KEY;
+let stripe = null;
+if (stripeKey) stripe = require('stripe')(stripeKey);
 
 //obtener todos los productos
 exports.getProducts = async (req, res) => {
@@ -40,27 +43,54 @@ exports.getProductById = async (req, res) => {
 
 //crear un nuevo producto
 exports.createProduct = async (req, res) => {
-    const { name, description, price, category, stock, image, featured } = req.body;
-try {
-    const newProduct = await Product.create({
-        name,
-        description,
-        price,
-        category,
-        stock,
-        image,
-        featured
-    });
-    return res.status(201).json({
-        message: "Producto creado correctamente",
-        data: newProduct
-    });
-} catch (error) {
-    return res.status(500).json({
-        message: "Error al crear el producto", 
-        error: error.message
-    });
-}
+    
+    const defaultCurrency = process.env.STRIPE_CURRENCY || 'clp';
+    const { name, description, price, category, stock, image, featured, currency = defaultCurrency } = req.body;
+    try {
+        let idProd = '';
+        let priceID = '';
+
+        if (stripe) {
+            
+            const product = await stripe.products.create({
+                name,
+                description,
+                images: image ? [image] : [],
+                metadata: { category }
+            });
+
+            
+            const zeroDecimalCurrencies = ['clp', 'jpy', 'vnd'];
+            const currencyLower = (currency || '').toLowerCase();
+            const multiplier = zeroDecimalCurrencies.includes(currencyLower) ? 1 : 100;
+
+            const stripePrice = await stripe.prices.create({
+                unit_amount: Math.round(price * multiplier),
+                currency,
+                product: product.id
+            });
+
+            idProd = product.id;
+            priceID = stripePrice.id;
+        }
+
+        const newProduct = await Product.create({
+            idProd,
+            priceID,
+            currency,
+            name,
+            description,
+            price,
+            category,
+            stock,
+            image,
+            featured
+        });
+
+        return res.status(201).json({ message: "Producto creado correctamente", data: newProduct });
+    } catch (error) {
+        return res.status(500).json({ message: "Error al crear el producto", error: error.message });
+    }
 };
 
 //actualizar un producto por id 

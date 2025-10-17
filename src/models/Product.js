@@ -37,6 +37,21 @@ const productSchema = new mongoose.Schema({
         type: String,
         default:''
     },
+    // Stripe producto id 
+    idProd: {
+        type: String,
+        default: ''
+    },
+    // Stripe precio id 
+    priceID: {
+        type: String,
+        default: ''
+    },
+    //  Stripe precio momento
+    currency: {
+        type: String,
+        default: 'clp'
+    },
     //destacado
     featured: {
         type: Boolean,

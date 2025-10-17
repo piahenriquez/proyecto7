@@ -9,6 +9,7 @@ const connectDB = require("./config/db");
 // Importar rutas
 const userRoutes = require("./routes/users.Routes");
 const productRoutes = require("./routes/product.Routes");
+const cartRoutes = require("./routes/cart.Routes");
 
 const PORT = process.env.PORT || 3005;
 
@@ -17,7 +18,7 @@ const app = express();
 // Conectar a la base de datos
 connectDB();
 
-// Configuración CORS como tu profesor
+// Configuración CORS 
 const allowedOrigins = [
     'http://localhost:5173',
 ];
@@ -49,6 +50,9 @@ app.get("/", (req, res) => {
 // Rutas
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
+app.use("/api/cart", cartRoutes);
+
+app.use("/api/carts", cartRoutes);
 
 // Iniciar el servidor
 app.listen(PORT, () => {
