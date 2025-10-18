@@ -10,6 +10,7 @@ const connectDB = require("./config/db");
 const userRoutes = require("./routes/users.Routes");
 const productRoutes = require("./routes/product.Routes");
 const cartRoutes = require("./routes/cart.Routes");
+const favoritesRoutes = require('./routes/favorites.Routes');
 
 const PORT = process.env.PORT || 3005;
 
@@ -51,6 +52,7 @@ app.get("/", (req, res) => {
 app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/cart", cartRoutes);
+app.use("/api/favorites", favoritesRoutes);
 
 app.use("/api/carts", cartRoutes);
 
